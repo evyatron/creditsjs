@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Credits</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      html, body {
+        height: 100%;
+      }
+      body {
+        background: -moz-linear-gradient(top, #eee, #ddd);
+      }
+      
+      
+      form {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 10px;
+        border: 1px solid #666;
+        background: #333;
+        border-radius: 6px;
+        color: #fff;
+        z-index: 700;
+        transition: opacity .2s linear;
+      }
+        form div {
+          padding: 5px 0;
+        }
+        form div > * {
+          display: inline-block;
+          vertical-align: top;
+        }
+        form label {
+          width: 120px;
+        }
+        form select {
+          width: 400px;
+        }
+        form textarea {
+          width: 400px;
+          height: 300px;
+        }
+        form input[type=button] {
+          padding: 3px 20px;
+        }
+        form div:last-child {
+          text-align: center;
+        }
+      
+      
+      .credits-visible form {
+        opacity: .2;
+      }
+      .credits-visible form:hover {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <form>
+      <div>
+        <label for="input-presets">Preset:</label>
+        <select id="input-presets" name="input-presets"></select>
+      </div>
+      <div>
+        <label for="input-credits">Text:</label>
+        <textarea id="input-credits" name="input-credits"></textarea>
+      </div>
+      <div>
+        <input type="button" value="Run" id="button-run" />
+      </div>
+    </form>
+
+    <script src="Credits.js"></script>
+    <script>
+      var elPresets = document.getElementById('input-presets'),
+        	elCredits = document.getElementById('input-credits'),
+          
+          DEFAULT_ANIMATION = 'spin-ninja',
+          DEFAULT_CREDITS = 'Credits.js is used to draw credits on the screen.\n\n' +
+                            'You can have multiple screens and multiple lines per screen.\n\n' +
+                            'for example:\n' +
+                            'Credits.show({\n' +
+                              'text:[["First line", "Second line"]],\n' +
+                              'animation: "shrink"\n' +
+                            '});';
+
+      window.onload = function() {
+        elCredits.value = DEFAULT_CREDITS;
+
+        createPresetsSelector();
+
+        document.getElementById('button-run').addEventListener('click', playCredits);
+      };
+
+      // create a select box from Credit.js' presets
+      function createPresetsSelector() {
+        var presets = Credits.getPresets(),
+            htmlPresets = [];
+
+        for (var presetName in presets) {
+          htmlPresets.push('<option value="' + presetName + '"' + 
+                        (presetName === DEFAULT_ANIMATION? ' selected="selected"' : '') +
+                        '>' +
+                        presetName +
+                      '</option>');
+        }
+
+        elPresets.innerHTML = htmlPresets.join('');
+
+        elPresets.addEventListener('change', onPresetChange);
+        onPresetChange();
+      }
+
+      // update the textarea with the new preset selected
+      function onPresetChange() {
+        var animation = elPresets.value || DEFAULT_ANIMATION,
+            credits = elCredits.value || DEFAULT_CREDITS;
+
+        credits = credits.replace(/animation: ".*"/i, 'animation: "' + animation + '"');
+
+        elCredits.value = credits;
+      }
+
+      function playCredits() {
+        var animation = elPresets.value || DEFAULT_ANIMATION,
+            credits = elCredits.value || DEFAULT_CREDITS;
+
+        // convert the textarea into an array
+        credits = credits.split("\n\n");
+        for (var i=0; i<credits.length; i++) {
+          credits[i] = credits[i].split("\n");
+        }
+
+        // start!
+        Credits.show({
+          'text': credits,
+          'animation': animation
+        });
+      }
+    </script>
+  </body>
+</html>
